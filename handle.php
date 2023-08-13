@@ -12,13 +12,14 @@ $client->setAccessType('offline');
 
 $service = new Google_Service_Sheets($client);
 $spreadsheetId = '1kDiRcAD6fFvq7z9LF7aOj5SaZW3RCnnqVMDyBE6qLmA'; // ID file sheet
-$range = 'Users!A2:B'; // Tên trang cần lấy dữ liệu
+$range = 'Users!A3:B'; // Tên trang cần lấy dữ liệu
 $response = $service->spreadsheets_values->get($spreadsheetId, $range);
 $accounts = $response->getValues();
 
 $redirect_range = 'Users!B1';
 $response = $service->spreadsheets_values->get($spreadsheetId, $redirect_range);
 [[$redirect_url]] = $response->getValues();
+
 session_start();
 if($_SERVER['REQUEST_METHOD'] === 'POST') {
 
@@ -36,10 +37,10 @@ if($_SERVER['REQUEST_METHOD'] === 'POST') {
                 file_put_contents($file_log, $current);
                 header('Location: '. $redirect_url);
             }
-            die();
+            break;
         }
     }
     $_SESSION['err_message'] = 'Login information is not correct';
     header('Location: '. $_SERVER['HTTP_REFERER']);
-    exit();
+    die();
 }
