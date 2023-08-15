@@ -26,25 +26,28 @@ if($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $username = $_POST['username'] ?? '';
     $password = $_POST['password'] ?? '';
+
+    $rangeLogs = 'Logs!A:B';
+    $rangeLoginFailed = 'LoginFailed!A:B';
+    $value = [
+        [$username,date('d-m-Y H:i:s')],
+    ];
+
+    $body = new Google_Service_Sheets_ValueRange([
+        'values' => $value
+    ]);
+
+    $params = [
+        'valueInputOption' => 'RAW'
+    ];
+
     foreach ($accounts as $account) {
         if (!$account) continue;
         [$db_username,$db_password] = $account;
         if ($db_username === $username) {
             if ($db_password === $password) {
-                $range = 'Logs!A:B';
-                $value = [
-                    [$username,date('d-m-Y H:i:s')],
-                ];
 
-                $body = new Google_Service_Sheets_ValueRange([
-                    'values' => $value
-                ]);
-
-                $params = [
-                    'valueInputOption' => 'RAW'
-                ];
-
-                $result = $service->spreadsheets_values->append($spreadsheetId, $range, $body, $params);
+                $result = $service->spreadsheets_values->append($spreadsheetId, $rangeLogs, $body, $params);
 
                 $_SESSION['auth'] = ['username'=> $username,'check'=>true];
 
@@ -54,6 +57,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST') {
             break;
         }
     }
+    $result = $service->spreadsheets_values->append($spreadsheetId, $rangeLoginFailed, $body, $params);
     $_SESSION['err_message'] = 'Login information is not correct';
     header('Location: '. $_SERVER['HTTP_REFERER']);
     die();
